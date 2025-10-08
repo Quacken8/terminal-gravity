@@ -30,8 +30,8 @@ fn magnitude(v: Vector) -> f64 {
 }
 
 fn newtonian_force(me: &State, other_planet: &State) -> Vector {
-    let from_me_to_other = -1.0 * me.position + other_planet.position;
-    -NEWTONIAN_G * me.mass * other_planet.mass
+    let from_me_to_other = other_planet.position - me.position;
+    NEWTONIAN_G * me.mass * other_planet.mass
         / magnitude(from_me_to_other)
         / magnitude(from_me_to_other)
         / magnitude(from_me_to_other)
@@ -54,7 +54,7 @@ fn newtonian_d_dt(state: StateVec, _t: f64) -> StateVec {
         res.push(State {
             mass: 0.0,
             position: planet.velocity,
-            velocity: force,
+            velocity: (1.0 / planet.mass) * force,
         });
     }
 
