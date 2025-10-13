@@ -2,8 +2,9 @@ use crate::{rk4::step_rk4, vectors::State, vectors::StateVec, vectors::Vector};
 
 static NEWTONIAN_G: f64 = 6.6743e-11;
 static TOO_CLOSE: f64 = 2.0 * 6.95700e8; // Solar diameter
+pub static ASTRONOMICAL_UNIT: f64 = 149597870700.0;
 
-fn create_planets() -> StateVec {
+pub fn create_planets() -> StateVec {
     let the_sun = State {
         mass: 1.98892e30,
         position: Vector { x: 0.0, y: 0.0 },
@@ -13,7 +14,7 @@ fn create_planets() -> StateVec {
     let the_earth = State {
         mass: 5.9722e24,
         position: Vector {
-            x: 149597870700.0,
+            x: ASTRONOMICAL_UNIT,
             y: 0.0,
         },
         velocity: Vector {
@@ -38,7 +39,7 @@ fn newtonian_force(me: &State, other_planet: &State) -> Vector {
         * from_me_to_other
 }
 
-fn newtonian_d_dt(state: StateVec, _t: f64) -> StateVec {
+pub fn newtonian_d_dt(state: StateVec, _t: f64) -> StateVec {
     let planets = state.0;
     let mut res = Vec::with_capacity(planets.len());
 
