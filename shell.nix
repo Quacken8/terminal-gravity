@@ -9,10 +9,11 @@ pkgs.mkShell {
     rust-analyzer
     clippy
     rustfmt
-
-
     xorg.libX11
+
     pkg-config
   ];
 
+  RUST_BACKTRACE = 1;
+  PKG_CONFIG_PATH = "${pkgs.xorg.libX11}/lib/pkgconfig";
 }

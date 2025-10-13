@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Mul, Sub};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Mul, Sub},
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vector {
@@ -15,6 +18,12 @@ pub struct State {
 
 #[derive(Clone, Debug)]
 pub struct StateVec(pub Vec<State>);
+
+impl Display for Vector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}, {}]", self.x, self.y)
+    }
+}
 
 impl AddAssign for StateVec {
     fn add_assign(&mut self, rhs: Self) {
