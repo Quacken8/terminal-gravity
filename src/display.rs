@@ -16,8 +16,8 @@ pub fn coords_function(
     }) / large_radius;
 
     move |v: Vector| Vec2 {
-        x: (v.x * ratio) as i32 + dimensions.x / 2,
-        y: (v.y / 2.0 * ratio) as i32 + dimensions.y / 2,
+        x: (v.x * ratio - 0.5) as i32 + dimensions.x / 2,
+        y: (v.y / 2.0 * ratio - 0.5) as i32 + dimensions.y / 2,
     }
 }
 

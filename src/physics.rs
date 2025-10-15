@@ -22,40 +22,17 @@ pub const THE_EARTH: State = State {
     },
 };
 
-pub fn create_planets() -> StateVec {
-    StateVec(vec![THE_SUN, THE_EARTH])
-}
-
-pub fn generate_three_body() -> StateVec {
-    let body1 = State {
-        mass: THE_SUN.mass,
-        position: Vector {
-            x: -ASTRONOMICAL_UNIT * 0.5,
-            y: 0.0,
-        },
-        velocity: Vector { x: 0.0, y: -1.5e4 },
-    };
-
-    let body2 = State {
-        mass: THE_SUN.mass * 0.8,
-        position: Vector {
-            x: ASTRONOMICAL_UNIT * 0.5,
-            y: 0.0,
-        },
-        velocity: Vector { x: 0.0, y: 1.5e4 },
-    };
-
-    let body3 = State {
-        mass: THE_SUN.mass * 0.4,
-        position: Vector {
-            x: 0.0,
-            y: ASTRONOMICAL_UNIT * 0.3,
-        },
-        velocity: Vector { y: 0.0, x: -3.5e4 },
-    };
-
-    StateVec(vec![body1, body2, body3])
-}
+pub const THE_MOON: State = State {
+    position: Vector {
+        x: 1.1 * ASTRONOMICAL_UNIT,
+        y: 0.0,
+    },
+    velocity: Vector {
+        x: 0.0,
+        y: 0.8 * 2.9681753092730e04,
+    },
+    mass: THE_EARTH.mass,
+};
 
 fn magnitude(v: Vector) -> f64 {
     v.x.hypot(v.y)
@@ -68,6 +45,11 @@ fn newtonian_force(me: &State, other_planet: &State) -> Vector {
         / magnitude(from_me_to_other)
         / magnitude(from_me_to_other)
         * from_me_to_other
+}
+
+fn newtonian_energy(me: &State, other_planet: &State) -> f64 {
+    let from_me_to_other = other_planet.position - me.position;
+    -NEWTONIAN_G * me.mass * other_planet.mass / magnitude(from_me_to_other)
 }
 
 pub fn newtonian_d_dt(state: StateVec, _t: f64) -> StateVec {
@@ -93,17 +75,19 @@ pub fn newtonian_d_dt(state: StateVec, _t: f64) -> StateVec {
     StateVec(res)
 }
 
-pub fn simulate(end_time: f64, steps: f64) -> Vec<Vec<Vector>> {
-    let mut time = 0.0;
-    let dt = end_time / steps;
-    let mut state = create_planets();
-    let mut res = Vec::with_capacity(steps.ceil() as usize);
-    res.push(state.0.iter().map(|s| s.position).collect());
+pub fn total_energy(state: &StateVec) -> f64 {
+    let planets = &state.0;
+    let kinetic = planets.iter().fold(0.0, |acc, curr| {
+        acc + 0.5 * curr.mass * magnitude(curr.velocity) * magnitude(curr.velocity)
+    });
 
-    while time < end_time {
-        time = step_rk4(&mut state, newtonian_d_dt, time, dt);
-        res.push(state.0.iter().map(|s| s.position).collect());
+    let mut potential = 0.0;
+    for i in 0..planets.len() {
+        let me = planets[i];
+        for other_planet in planets.iter().skip(i + 1) {
+            potential += newtonian_energy(&me, other_planet);
+        }
     }
 
-    res
+    kinetic + potential
 }
